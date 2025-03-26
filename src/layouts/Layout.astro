@@ -19,56 +19,94 @@ const categories = [
 ]
 ---
 <!doctype html>
-<html lang="en">
+<html lang="es" class="h-full">
 	<head>
 		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<title>JoSports</title>
 	</head>
-	<body class="bg-gray-50 text-secondary w-screen h-screen">
-		<header class="bg-primary-light text-black fixed w-screen px-10">
-			<nav class="container mx-auto flex justify-between items-center py-4">
-				<a href="/" class="text-2xl font-bold">JoEsports</a>
-				
-				<div class="relative group">
-				  <button class="flex items-center space-x-2 hover:bg-primary transition">
-					Categorias
-					<svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-					  <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
-					</svg>
-				  </button>
-				  
-				  <div class="absolute hidden group-hover:block bg-white shadow-lg rounded-md mt-2 overflow-hidden z-20">
-					{categories.map(category => (
-					  <a 
-						href={`/categories/${category.id}`} 
-						class="flex items-center px-4 py-2 hover:bg-primary-special hover:text-primary transition"
-					  >
-						<span class="mr-2">{category.icon}</span>
-						{category.name}
-					  </a>
-					))}
-				  </div>
+	<body class="flex flex-col min-h-screen bg-gray-50 text-secondary">
+		<header class="bg-primary-light text-black fixed top-0 left-0 w-full z-50 shadow-md">
+			<nav class="container mx-auto flex justify-between items-center py-4 px-6">
+				<div class="flex items-center">
+					<a href="/" class="text-2xl font-bold flex items-center mr-6">
+						<img src="/favicon.svg" alt="JoSports Logo" class="h-8 mr-2"/>
+						JoSports
+					</a>
+					
+					<div x-data="{ open: false }" class="relative">
+						<button 
+							@click="open = !open" 
+							class="flex items-center space-x-2 hover:bg-primary-special px-3 py-2 rounded transition"
+						>
+							Categorias
+							<svg class="w-4 h-4 ml-1" fill="currentColor" viewBox="0 0 20 20">
+								<path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+							</svg>
+						</button>
+						
+						<div 
+							x-show="open" 
+							x-transition
+							@click.outside="open = false"
+							class="absolute left-0 mt-2 bg-white shadow-lg rounded-md overflow-hidden z-50 min-w-[200px]"
+						>
+							{categories.map(category => (
+								<a 
+									href={`/categories/${category.id}`} 
+									class="flex items-center px-4 py-3 hover:bg-primary-special hover:text-primary transition"
+								>
+									<span class="mr-2">{category.icon}</span>
+									{category.name}
+								</a>
+							))}
+						</div>
+					</div>
 				</div>
 				
 				<div class="flex items-center space-x-4">
-				  <a href="/cart" class="hover:text-primary-special">
-					🛒 Carrito
-				  </a>
+					<a href="/cart" class="hover:text-primary flex items-center">
+						<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+						</svg>
+						Carrito
+					</a>
 				</div>
-			  </nav>
-			</header>
+			</nav>
 		</header>
-		<main>
+
+		<main class="flex-grow pt-20 container mx-auto px-6">
 			<slot />
 		</main>
-		<footer class="bg-secondary text-white py-8 mt-8 bottom-0">
-			<div class="container mx-auto text-center">
-			  © {new Date().getFullYear()} JoEsports
+
+		<footer class="bg-secondary text-white py-8">
+			<div class="container mx-auto px-6">
+				<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+					<div>
+						<h3 class="font-bold text-lg mb-4">JoSports</h3>
+						<p class="text-sm text-gray-300">Tienda especializada en equipamiento deportivo de alta calidad.</p>
+					</div>
+					<div>
+						<h4 class="font-semibold mb-4">Navegación</h4>
+						<div class="flex flex-col space-y-2">
+							<a href="/about" class="text-sm hover:text-primary-light transition">Sobre Nosotros</a>
+							<a href="/categories" class="text-sm hover:text-primary-light transition">Categorías</a>
+							<a href="/contact" class="text-sm hover:text-primary-light transition">Contacto</a>
+						</div>
+					</div>
+					<div>
+						<h4 class="font-semibold mb-4">Contacto</h4>
+						<p class="text-sm">Email: info@josports.com</p>
+						<p class="text-sm">Teléfono: +54 123 456 7890</p>
+					</div>
+				</div>
+				<div class="mt-8 pt-6 border-t border-gray-700 text-center">
+					<p class="text-sm">© {new Date().getFullYear()} JoSports. Todos los derechos reservados.</p>
+				</div>
 			</div>
-		  </footer>
+		</footer>
+
+		<script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
 	</body>
 </html>
-
-

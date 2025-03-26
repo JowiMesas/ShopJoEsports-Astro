@@ -1,0 +1,50 @@
+---
+import { getCollection} from "astro:content"
+const footballProducts = await getCollection('football')
+const formula1Products = await getCollection('formula1')
+const categories = [
+    {
+        id: 'football',
+        name: '⚽ Fútbol',
+        products: footballProducts
+    },
+    {
+        id: 'formula1',
+        name: '🏎️ Fórmula 1',
+        products: formula1Products
+    }
+]
+---
+<div class="container mx-auto px-6 py-8">
+    <h1 class="text-3xl font-bold mb-8 text-primary">Todos los Productos</h1>
+
+    {categories.map(category => (
+        <section class="mb-12">
+            <h2 class="text-2xl font-semibold mb-6 text-secondary flex items-center">
+                <span class="mr-2">{category.name}</span>
+                <a 
+            href={`/categories/${category.id}`} 
+            class="text-sm text-primary-light hover:underline ml-4"
+          >
+            Ver más
+          </a>
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                {category.products.map(product => (
+                    <div class="bg-white shadow-md rounded-lg overflow-hidden transform transition hover:scale-105">
+                        <img class="w-full h-48 object-cover" src={product.data.image} alt={product.data.name}>
+                     <div>
+                        <h3 class="text-lg font-semibold text-secondary mb-2">{product.data.name}</h3>
+                        <p class="text-primary-light font-bold mb-2">
+                            {product.data.price}€
+                        </p>
+                        <a href={`/products/${category.id}/${product.slug}`}
+                         class="block w-full bg-primary text-white py-2 text-center rounded hover:bg-primary-light transition">
+                             Ver Detalles</a>
+                        </div>   
+                    </div>
+                ))}
+            </div>
+        </section>
+    ))}
+</div>

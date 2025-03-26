@@ -1,0 +1,17 @@
+---
+import type { GetStaticPaths } from "astro";
+import { getCollection } from "astro:content";
+export async function getStaticPaths() {
+  return [
+    { 
+      params: { category: 'football' }, 
+      props: { 
+        products: await getCollection('football'),
+        title: '⚽ Fútbol'
+      } 
+    },
+  ];
+}
+
+const {products, title} = Astro.props;
+---

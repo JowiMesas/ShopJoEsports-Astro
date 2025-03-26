@@ -1,0 +1,101 @@
+---
+
+import { getCollection } from "astro:content";
+import Layout from "../../../layouts/Layout.astro";
+export async function getStaticPaths() {
+    const categories = ['football', 'formula1', 'tennis'];
+    const paths = [];
+    
+    for(const category of categories) {
+        const products = await getCollection('football');
+        paths.push(...products.map(product => ({
+            params: {
+                category,
+                slug: product.slug
+            },
+            props: {product}
+        })));
+    }
+    return paths;
+}
+const {product} = Astro.props;
+const categories = {
+    'football': '⚽ Fútbol',
+    'formula1' : '🏎️ Fórmula 1',
+    'tennis': '🎾 Tenis'
+}
+---
+
+<Layout>
+        <div class="container mx-auto px-6 py-8">
+            <div class="grid md:grid-cols-2 gap-8">
+                <div>
+                    <img src={product.data.image} alt={product.data.name} class="w-full rounded-lg shadow-lg">
+                    {product.data.colors &&(
+                        <div class="mt-4">
+                            <h3 class="font-semibold mb-2">Colores Disponibles</h3>
+                            <div class="flex space-x-2">
+                                {product.data.colors.map(color => (
+                                    <span class="w-6 h-6 rounded-full border"
+                                     style={`background-color: ${color}`}>    
+                                    </span>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+                </div>
+                <div>
+                    <h1 class="text-3xl font-bold mb-4 text-secondary">{product.data.name}</h1>
+                    <p class="text-lg text-gray-500 mb-2">
+                     {product.data.brand && `Marca: ${product.data.brand}`}
+                    </p>   
+                    <div>
+                        {categories[product.data.category]}
+                    </div>
+                    <p class="text-gray-600 mb-4">
+                        {product.data.description}
+                    </p>
+                    <div class="flex items-center mb-4">
+                        <p class="text-2xl font-bold text-primary-light mr-4">
+                          ${product.data.price.toFixed(2)}
+                        </p>
+                        {product.data.discount && (
+                          <span class="bg-green-100 text-green-800 px-2 py-1 rounded">
+                            {product.data.discount}% OFF
+                          </span>
+                        )}
+                      </div>
+                      {product.data.sizes && (
+                        <div class="mb-4">
+                            <h3 class="font-semibold mb-2">Tallas: </h3>
+                            <div class="flex space-x-2">
+                                {product.data.sizes.map(size => (
+                                    <span class="px-3 py-1 border rounded">
+                                        {size}
+                                    </span>
+                                ))}
+                            </div>
+                        </div>
+                      )}
+                      <div class=" flex items-center mb-4">
+                        <span class="mr-2">Stock:</span>
+                        <span class={`
+                            ${product.data.stock > 10 ? 'text-green-600' : 
+                              product.data.stock > 0 ? 'text-yellow-600' : 'text-red-600'}`}>
+                             {product.data.stock}  unidades disponibles</span>
+                      </div>
+                      <button 
+                      disabled={product.data.stock === 0}
+                      class={`
+                        w-full py-3 px-6 rounded transition
+                        ${product.data.stock > 0 
+                          ? 'bg-primary text-white hover:bg-primary-light' 
+                          : 'bg-gray-300 text-gray-500 cursor-not-allowed'}
+                      `}
+                    >
+                      {product.data.stock > 0 ? 'Añadir al Carrito' : 'Sin Stock'}
+                    </button>
+                </div>
+            </div>
+        </div>
+    </Layout>
