@@ -4,7 +4,7 @@ description: Esta raqueta ha sido concebida para los jugadores y las jugadoras d
 price: 109.95
 brand: Babolat
 category: tennis
-image: /images/raquetaRafaNadal.webp
+image: /images/raquetaRafaNadal.avif
 stock: 40
 sizes: ["GRIP 1", "GRIP 2"]
 colors: ["#D341A2"]

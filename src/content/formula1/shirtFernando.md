@@ -6,6 +6,6 @@ category: formula1
 image: /images/fernandoShirt.webp
 stock: 10
 discount: 20
-sizes: ["XL", "L", "M", "S"]
+sizes: ["XS", "S", "M", "L", "XL"]
 colors: ["#015E53"]
 ---
