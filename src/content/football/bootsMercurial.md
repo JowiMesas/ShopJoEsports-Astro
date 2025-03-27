@@ -5,7 +5,13 @@ price: 64.99
 brand: Nike
 category: football
 image: /images/nikeMercurial.webp
+images: [
+    "/images/nikeMercurial.webp",
+    "/images/nikeMercurialPink.webp",
+    "/images/nikeMercurialBlack.webp"
+]
+discount: 20
 stock: 20
 sizes: ["43", "42", "41", "40", "38"]
-colors: ["#C3D7DA", "#EF5260"]
+colors: ["#C3D7DA", "#EF5260", "#1B1B1B"]
 ---

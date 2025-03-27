@@ -9,6 +9,7 @@ const productsCollection = defineCollection({
         brand: z.string().optional(),
         category: z.enum(['football', 'formula1', 'tennis']),
         image: z.string(),
+        images: z.array(z.string()).optional(),
         stock: z.number().default(0),
         discount: z.number().optional(),
         sizes: z.array(z.string()).optional(),

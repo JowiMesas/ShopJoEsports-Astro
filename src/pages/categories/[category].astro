@@ -1,17 +1,80 @@
 ---
-import type { GetStaticPaths } from "astro";
 import { getCollection } from "astro:content";
+import Layout from "../../layouts/Layout.astro";
+
 export async function getStaticPaths() {
-  return [
-    { 
-      params: { category: 'football' }, 
-      props: { 
-        products: await getCollection('football'),
-        title: '⚽ Fútbol'
-      } 
-    },
-  ];
+    const getCategoryTitle = (category: string) => {
+        const titles: Record<string, string> = {
+            'football': '⚽ Fútbol',
+            'formula1': '🏎️ Fórmula 1',
+            'tennis': '🎾 Tenis'
+        };
+        return titles[category] || 'Categoría';
+    };
+
+    const categories = ['football', 'formula1', 'tennis'];
+
+    const allCollections = await Promise.all([
+        getCollection('football'),
+        getCollection('formula1'),
+        getCollection('tennis')
+    ]);
+
+    const paths = categories.map(category => {
+        const products = allCollections.flat().filter(
+            product => product.data.category === category
+        );
+
+        return {
+            params: { category },
+            props: { 
+                products,
+                title: getCategoryTitle(category)
+            }
+        };
+    });
+
+    return paths;
 }
 
-const {products, title} = Astro.props;
+const { category } = Astro.params;
+const { products, title } = Astro.props;
 ---
+
+<Layout>
+    <div class="container mx-auto px-6 py-8">
+        <h1 class="text-3xl font-bold mb-8 text-primary">
+            {title}
+        </h1>
+
+        {products.length > 0 ? (
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                {products.map(product => (
+                    <div class="bg-white shadow-md rounded-lg overflow-hidden transform transition hover:scale-105">
+                        <img 
+                            class="w-full h-48 object-cover" 
+                            src={product.data.image} 
+                            alt={product.data.name}
+                        >
+                        <div class="p-4">
+                            <h3 class="text-lg font-semibold text-secondary mb-2">
+                                {product.data.name}
+                            </h3>
+                            <p class="text-primary-light font-bold mb-2">
+                                {product.data.price.toFixed(2)}€
+                            </p>
+                            <a 
+                                href={`/products/${category}/${product.slug}`}
+                                class="block w-full bg-primary text-white py-2 text-center rounded hover:bg-primary-light transition"
+                            >
+                                Ver Detalles
+                            </a>
+                        </div>   
+                    </div>
+                ))}
+            </div>
+        ) : (
+            <p class="text-center text-gray-500">No hay productos en esta categoría.</p>
+        )}
+    </div>
+</Layout>

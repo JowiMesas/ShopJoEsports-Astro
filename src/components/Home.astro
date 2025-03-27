@@ -2,6 +2,7 @@
 import { getCollection} from "astro:content"
 const footballProducts = await getCollection('football')
 const formula1Products = await getCollection('formula1')
+const tennisProducts = await getCollection('tennis')
 const categories = [
     {
         id: 'football',
@@ -12,6 +13,11 @@ const categories = [
         id: 'formula1',
         name: '🏎️ Fórmula 1',
         products: formula1Products
+    },
+    {
+       id: 'tennis',
+       name: '🎾 Tenis',
+       products: tennisProducts
     }
 ]
 ---
