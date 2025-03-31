@@ -1,56 +1,363 @@
 ---
-import { getCollection} from "astro:content"
-const footballProducts = await getCollection('football')
-const formula1Products = await getCollection('formula1')
-const tennisProducts = await getCollection('tennis')
-const categories = [
-    {
-        id: 'football',
-        name: '⚽ Fútbol',
-        products: footballProducts
-    },
-    {
-        id: 'formula1',
-        name: '🏎️ Fórmula 1',
-        products: formula1Products
-    },
-    {
-       id: 'tennis',
-       name: '🎾 Tenis',
-       products: tennisProducts
-    }
-]
----
-<div class="container mx-auto px-6 py-8">
-    <h1 class="text-3xl font-bold mb-8 text-primary">Todos los Productos</h1>
+import { getCollection } from "astro:content";
+import Layout from "../layouts/Layout.astro";
 
-    {categories.map(category => (
-        <section class="mb-12">
-            <h2 class="text-2xl font-semibold mb-6 text-secondary flex items-center">
-                <span class="mr-2">{category.name}</span>
-                <a 
-            href={`/categories/${category.id}`} 
-            class="text-sm text-primary-light hover:underline ml-4"
-          >
-            Ver más
-          </a>
-            </h2>
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-                {category.products.map(product => (
-                    <div class="bg-white shadow-md rounded-lg overflow-hidden transform transition hover:scale-105">
-                        <img class="w-full h-48 object-cover" src={product.data.image} alt={product.data.name}>
-                     <div>
-                        <h3 class="text-lg font-semibold text-secondary mb-2">{product.data.name}</h3>
-                        <p class="text-primary-light font-bold mb-2">
-                            {product.data.price}€
-                        </p>
-                        <a href={`/products/${category.id}/${product.slug}`}
-                         class="block w-full bg-primary text-white py-2 text-center rounded hover:bg-primary-light transition">
-                             Ver Detalles</a>
-                        </div>   
-                    </div>
-                ))}
+// Obtener todos los productos
+const footballProducts = await getCollection('football');
+const formula1Products = await getCollection('formula1');
+const tennisProducts = await getCollection('tennis');
+
+// Configurar categorías con sus productos
+const categories = [
+  { 
+    id: 'football', 
+    name: 'Fútbol', 
+    icon: '⚽', 
+    products: footballProducts,
+    description: 'Equipamiento profesional para los amantes del fútbol'
+  },
+  { 
+    id: 'formula1', 
+    name: 'Fórmula 1', 
+    icon: '🏎️', 
+    products: formula1Products,
+    description: 'Merchandising oficial y accesorios de F1'
+  },
+  { 
+    id: 'tennis', 
+    name: 'Tenis', 
+    icon: '🎾', 
+    products: tennisProducts,
+    description: 'Todo lo que necesitas para dominar en la pista'
+  }
+];
+
+// Función para calcular el precio con descuento
+function calcularPrecioConDescuento(precio: any, descuento: any) {
+  if (!descuento) return precio;
+  return (precio - (precio * descuento / 100)).toFixed(2);
+}
+
+// Obtener productos destacados (1 de cada categoría)
+const productosDestacados = categories.map(category => {
+  return category.products[0]; // Simplemente tomamos el primer producto de cada categoría
+});
+
+// Obtener productos con descuento (ajustamos para verificar si la propiedad existe)
+const productosConDescuento = [
+  ...footballProducts.filter(product => product.data.discount),
+  ...formula1Products.filter(product => product.data.discount),
+  ...tennisProducts.filter(product => product.data.discount)
+].slice(0, 4);
+
+// Función para obtener la categoría de un producto
+function getCategoryForProduct(product: any) {
+  // Encontrar a qué categoría pertenece el producto basado en su colección
+  if (footballProducts.some(p => p.id === product.id)) return categories[0];
+  if (formula1Products.some(p => p.id === product.id)) return categories[1];
+  if (tennisProducts.some(p => p.id === product.id)) return categories[2];
+  return null;
+}
+---
+
+  <!-- Hero Section -->
+  <section class="bg-gradient-to-r from-primary to-primary-light text-white py-16 mb-12">
+    <div class="container mx-auto px-6">
+      <div class="flex flex-col md:flex-row items-center justify-between">
+        <div class="md:w-1/2 mb-8 md:mb-0">
+          <h1 class="text-4xl md:text-5xl font-bold mb-4">Equipamiento deportivo de calidad premium</h1>
+          <p class="text-lg mb-6 text-special">Descubre nuestra selección de productos para fútbol, Fórmula 1 y tenis</p>
+          <div class="flex flex-wrap gap-4">
+            <a href="#categorias" class="bg-white text-primary font-bold py-3 px-6 rounded-lg hover:bg-special transition">
+              Ver Categorías
+            </a>
+            <a href="#ofertas" class="bg-special text-primary font-bold py-3 px-6 rounded-lg hover:bg-white transition">
+              Ver Ofertas
+            </a>
+          </div>
+        </div>
+        <div class="md:w-1/2 flex justify-center">
+          <!-- Imagen de ejemplo - reemplazar con tu imagen real -->
+          <div class="bg-special rounded-lg shadow-xl w-full h-64 flex items-center justify-center">
+            <span class="text-6xl text-primary">🏆</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Categorías -->
+  <section id="categorias" class="container mx-auto px-6 py-8 mb-12">
+    <h2 class="text-3xl font-bold mb-8 text-primary relative inline-block">
+      Nuestras Categorías
+      <span class="absolute bottom-0 left-0 w-full h-1 bg-primary-light"></span>
+    </h2>
+    
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      {categories.map(category => (
+        <a href={`/categories/${category.id}`} class="block group">
+          <div class="bg-white rounded-lg shadow-md overflow-hidden transform transition group-hover:shadow-lg">
+            <div class="h-48 bg-special flex items-center justify-center">
+              <span class="text-6xl">{category.icon}</span>
             </div>
-        </section>
+            <div class="p-6">
+              <h3 class="text-xl font-bold text-primary mb-2">{category.name}</h3>
+              <p class="text-secondary mb-4">{category.description}</p>
+              <div class="flex items-center text-primary-light font-semibold group-hover:text-primary transition">
+                Ver productos
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2 group-hover:translate-x-1 transition" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                </svg>
+              </div>
+            </div>
+          </div>
+        </a>
+      ))}
+    </div>
+  </section>
+
+  <!-- Productos Destacados -->
+  <section class="bg-special py-12 mb-12">
+    <div class="container mx-auto px-6">
+      <h2 class="text-3xl font-bold mb-8 text-primary relative inline-block">
+        Productos Destacados
+        <span class="absolute bottom-0 left-0 w-full h-1 bg-primary-light"></span>
+      </h2>
+      
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        {productosDestacados.map(product => {
+          const category = getCategoryForProduct(product);
+          return (
+            <div class="bg-white rounded-lg shadow-lg overflow-hidden transform transition hover:scale-105">
+              <div class="relative">
+                <img 
+                  class="w-full h-64 object-cover" 
+                  src={product.data.image} 
+                  alt={product.data.name}
+                />
+                <span class="absolute top-4 right-4 bg-primary text-white text-sm font-bold py-1 px-3 rounded-full">
+                  Destacado
+                </span>
+              </div>
+              <div class="p-6">
+                <div class="flex items-center mb-2">
+                  <span class="text-sm mr-2">{category?.icon}</span>
+                  <span class="text-xs text-secondary">
+                    {category?.name}
+                  </span>
+                </div>
+                <h3 class="text-xl font-bold text-primary mb-2">{product.data.name}</h3>
+                <p class="text-secondary mb-4 line-clamp-2">{product.data.description}</p>
+                
+                <div class="flex items-center justify-between">
+                  <div>
+                    {product.data.discount ? (
+                      <div class="flex items-center">
+                        <span class="text-gray-400 line-through mr-2">{product.data.price}€</span>
+                        <span class="text-xl font-bold text-primary-light">
+                          {calcularPrecioConDescuento(product.data.price, product.data.discount)}€
+                        </span>
+                      </div>
+                    ) : (
+                      <span class="text-xl font-bold text-primary-light">{product.data.price}€</span>
+                    )}
+                  </div>
+                  <a 
+                    href={`/products/${category?.id}/${product.slug}`}
+                    class="bg-primary text-white py-2 px-4 rounded-lg hover:bg-primary-light transition"
+                  >
+                    Ver Detalles
+                  </a>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  </section>
+
+  <!-- Ofertas -->
+  <section id="ofertas" class="container mx-auto px-6 py-8 mb-12">
+    <h2 class="text-3xl font-bold mb-8 text-primary relative inline-block">
+      Ofertas Especiales
+      <span class="absolute bottom-0 left-0 w-full h-1 bg-primary-light"></span>
+    </h2>
+    
+    {productosConDescuento.length > 0 ? (
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+        {productosConDescuento.map(product => {
+          const category = getCategoryForProduct(product);
+          return (
+            <div class="bg-white shadow-md rounded-lg overflow-hidden transform transition hover:scale-105">
+              <div class="relative">
+                <img 
+                  class="w-full h-48 object-cover" 
+                  src={product.data.image} 
+                  alt={product.data.name}
+                />
+                <div class="absolute top-0 left-0 bg-primary-light text-white text-sm font-bold py-1 px-3 rounded-br-lg">
+                  -{product.data.discount}%
+                </div>
+              </div>
+              <div class="p-4">
+                <div class="flex items-center mb-1">
+                  <span class="text-sm mr-2">{category?.icon}</span>
+                  <span class="text-xs text-secondary">
+                    {category?.name}
+                  </span>
+                </div>
+                <h3 class="text-lg font-semibold text-primary mb-2 line-clamp-1">{product.data.name}</h3>
+                <div class="flex items-center mb-3">
+                  <span class="text-gray-400 line-through mr-2">{product.data.price}€</span>
+                  <span class="text-xl font-bold text-primary-light">
+                    {calcularPrecioConDescuento(product.data.price, product.data.discount)}€
+                  </span>
+                </div>
+                <a 
+                  href={`/products/${category?.id}/${product.slug}`}
+                  class="block w-full bg-primary text-white py-2 text-center rounded hover:bg-primary-light transition"
+                >
+                  Ver Detalles
+                </a>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    ) : (
+      <p class="text-center text-secondary">No hay ofertas disponibles en este momento.</p>
+    )}
+  </section>
+
+  <!-- Todos los Productos -->
+  <section class="container mx-auto px-6 py-8 mb-12">
+    <h2 class="text-3xl font-bold mb-8 text-primary relative inline-block">
+      Todos los Productos
+      <span class="absolute bottom-0 left-0 w-full h-1 bg-primary-light"></span>
+    </h2>
+    
+    {categories.map(category => (
+      <section class="mb-12">
+        <div class="flex items-center justify-between mb-6">
+          <h3 class="text-2xl font-semibold text-secondary flex items-center">
+            <span class="mr-2">{category.icon}</span>
+            {category.name}
+          </h3>
+          <a 
+            href={`/categories/${category.id}`} 
+            class="text-sm text-primary-light hover:text-primary transition flex items-center"
+          >
+            Ver todos los productos
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+            </svg>
+          </a>
+        </div>
+        
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+          {category.products.slice(0, 4).map(product => (
+            <div class="bg-white shadow-md rounded-lg overflow-hidden transform transition hover:scale-105">
+              <div class="relative">
+                <img 
+                  class="w-full h-48 object-cover" 
+                  src={product.data.image} 
+                  alt={product.data.name}
+                />
+                {product.data.discount && (
+                  <div class="absolute top-0 left-0 bg-primary-light text-white text-sm font-bold py-1 px-3 rounded-br-lg">
+                    -{product.data.discount}%
+                  </div>
+                )}
+              </div>
+              <div class="p-4">
+                <h3 class="text-lg font-semibold text-primary mb-2 line-clamp-1">{product.data.name}</h3>
+                <p class="text-sm text-secondary mb-3 line-clamp-2">{product.data.description || 'Sin descripción disponible'}</p>
+                
+                {product.data.discount ? (
+                  <div class="flex items-center mb-3">
+                    <span class="text-gray-400 line-through mr-2">{product.data.price}€</span>
+                    <span class="text-xl font-bold text-primary-light">
+                      {calcularPrecioConDescuento(product.data.price, product.data.discount)}€
+                    </span>
+                  </div>
+                ) : (
+                  <p class="text-xl font-bold text-primary-light mb-3">{product.data.price}€</p>
+                )}
+                
+                <a 
+                  href={`/products/${category.id}/${product.slug}`}
+                  class="block w-full bg-primary text-white py-2 text-center rounded hover:bg-primary-light transition"
+                >
+                  Ver Detalles
+                </a>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
     ))}
-</div>
+  </section>
+
+  <!-- Newsletter -->
+  <section class="bg-primary py-12 mb-12">
+    <div class="container mx-auto px-6">
+      <div class="flex flex-col md:flex-row items-center justify-between">
+        <div class="md:w-1/2 mb-6 md:mb-0">
+          <h2 class="text-3xl font-bold text-white mb-2">Suscríbete a nuestro newsletter</h2>
+          <p class="text-special">Recibe nuestras últimas ofertas y novedades directamente en tu correo.</p>
+        </div>
+        <div class="md:w-1/2">
+          <form class="flex flex-col sm:flex-row gap-3">
+            <input 
+              type="email" 
+              placeholder="Tu correo electrónico" 
+              class="flex-grow px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-light"
+              required
+            />
+            <button 
+              type="submit" 
+              class="bg-special text-primary font-bold py-3 px-6 rounded-lg hover:bg-white transition"
+            >
+              Suscribirse
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Beneficios -->
+  <section class="container mx-auto px-6 py-8 mb-12">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <div class="bg-white p-6 rounded-lg shadow-md flex flex-col items-center text-center">
+        <div class="bg-special p-4 rounded-full mb-4">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+          </svg>
+        </div>
+        <h3 class="text-xl font-bold text-primary mb-2">Calidad Garantizada</h3>
+        <p class="text-secondary">Todos nuestros productos están certificados y garantizados para ofrecerte la mejor experiencia.</p>
+      </div>
+      
+      <div class="bg-white p-6 rounded-lg shadow-md flex flex-col items-center text-center">
+        <div class="bg-special p-4 rounded-full mb-4">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+          </svg>
+        </div>
+        <h3 class="text-xl font-bold text-primary mb-2">Pago Seguro</h3>
+        <p class="text-secondary">Múltiples métodos de pago seguros y protegidos para tu tranquilidad.</p>
+      </div>
+      
+      <div class="bg-white p-6 rounded-lg shadow-md flex flex-col items-center text-center">
+        <div class="bg-special p-4 rounded-full mb-4">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+          </svg>
+        </div>
+        <h3 class="text-xl font-bold text-primary mb-2">Envío Gratuito</h3>
+        <p class="text-secondary">Envío gratuito en pedidos superiores a 50€. Entrega rápida a toda España.</p>
+      </div>
+    </div>
+  </section>
